@@ -27,9 +27,9 @@ def part_two():
 
 import time
 startTime = time.time()
-
 print(f"Part one: {part_one()}")
-print(f"Part two: {part_two()}")
+print('Execution time part one in seconds: ' + str((time.time() - startTime)))
 
-executionTime = (time.time() - startTime)
-print('Execution time in seconds: ' + str(executionTime))
+startTime = time.time()
+print(f"Part two: {part_two()}")
+print('Execution time part two in seconds: ' + str((time.time() - startTime)))
