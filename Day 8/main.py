@@ -82,7 +82,21 @@ def part_one():
     
 
 def part_two():
-    pass
+    g = Graph(lines)
+    d = g.get_distances()
+    i = -1
+    while True:
+        i += 1
+        p1, p2, distance = d[i]
+        g.connect(p1,p2)
+
+        if len(g.groups) == 1 and i > 1 and len(g.groups[0].boxes) == len(g.boxes):
+            break
+
+    print(f"Done after {i} iterations")
+    print(g.groups)
+    p1, p2, distance = d[i]
+    return p1.x * p2.x
 
 import time
 startTime = time.time()
