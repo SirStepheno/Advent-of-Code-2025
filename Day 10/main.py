@@ -1,6 +1,7 @@
 from itertools import combinations
+import pulp as pl
 
-with open("Day 10/test.txt") as f:
+with open("Day 10/input.txt") as f:
     lines = [line[:-1] for line in f.readlines()]
     machines = []
     for line in lines:
@@ -43,33 +44,20 @@ def get_fewest_clicks_lights(lights, buttons):
         i +=1
 
 def get_fewest_clicks_joltage(buttons, joltage):
-    combinations = set([tuple([button]) for button in buttons])
-    while True:
-        print(combinations)
-        new_combinations = set()
-        for combi in combinations:
-            for add_button in buttons:
-                combi_test = combi + tuple((add_button,1))
-                print(combi_test)
-                joltage_test = [0 for _ in range(len(joltage))]
+    prob = pl.LpProblem('problem', pl.LpMinimize)
 
-                # Do combination and check if lights_test equals lights
-                for button in combi_test:
-                    for x in button:
-                        joltage_test[x] += 1
-                
-                print(combi_test, joltage, joltage_test)
-                if joltage_test == joltage:
-                    return len(combi_test)
-                
-                # If one of the joltages is to high, don't add them to next round
-                print([(j - j_test) >= 0 for j, j_test in zip(joltage, joltage_test)])
-                if all([(j - j_test) >= 0 for j, j_test in zip(joltage, joltage_test)]):
-                    new_combinations.add(sorted(combi_test))
-    
-        combinations = new_combinations
-        print(combinations)
+    button_vars = [pl.LpVariable(f"b{i}", lowBound=0, cat=pl.LpInteger) for i, button in enumerate(buttons)]
 
+    button_counters = [[button_vars[i] for i, tup in enumerate(buttons) if jol_i in tup] for jol_i in range(len(joltage))]
+
+    for i, button_counter in enumerate(button_counters):
+        prob += sum(button_counter) == joltage[i]
+
+    prob += sum(button_vars)
+
+    prob.solve(pl.PULP_CBC_CMD(msg=0)) # Calculate silent
+
+    return prob.objective.value()
 
 def part_one():
     r = 0
@@ -81,7 +69,7 @@ def part_two():
     r = 0
     for lights, buttons, joltage in machines:
         r += get_fewest_clicks_joltage(buttons, joltage)
-    return r
+    return int(r)
 
 import time
 startTime = time.time()
